@@ -40,13 +40,10 @@ module ApiAuth
       clock_skew = options.fetch(:clock_skew, 900)
 
       if headers.md5_mismatch?
-        puts "md5 mismatch"
         false
       elsif !signatures_match?(headers, secret_key, options)
-        puts "!signatures_match"
         false
       elsif !request_within_time_window?(headers, clock_skew)
-        puts "!request_within_time_window"
         false
       else
         true
@@ -71,6 +68,8 @@ module ApiAuth
       random_bytes = OpenSSL::Random.random_bytes(512)
       b64_encode(Digest::SHA2.new(512).digest(random_bytes))
     end
+    
+    private
 
     AUTH_HEADER_PATTERN = /APIAuth(?:-HMAC-(MD5|SHA(?:1|224|256|384|512)?))? ([^:]+):(.+)$/
 
@@ -86,7 +85,11 @@ module ApiAuth
       return false unless match_data
 
       digest = match_data[1].nil? ? 'SHA1' : match_data[1].upcase
-      raise InvalidRequestDigest if !options[:digest].nil? && !options[:digest].casecmp(digest).zero?
+      
+      if !options[:digest].nil? && !options[:digest].casecmp(digest).zero?
+        puts "invalid digest"
+        raise InvalidRequestDigest 
+      end
 
       options = { digest: digest }.merge(options)
 
