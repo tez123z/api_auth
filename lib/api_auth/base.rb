@@ -30,6 +30,7 @@ module ApiAuth
     # Determines if the request is authentic given the request and the client's
     # secret key. Returns true if the request is authentic and false otherwise.
     def authentic?(request, secret_key, options = {})
+      
       return false if secret_key.nil?
 
       options = { override_http_method: nil }.merge(options)
@@ -42,12 +43,15 @@ module ApiAuth
       if headers.md5_mismatch?
         false
       elsif !signatures_match?(headers, secret_key, options)
+        puts "signatures don't match"
         false
       elsif !request_within_time_window?(headers, clock_skew)
+        puts "request not within window"
         false
       else
         true
       end
+      
     end
 
     # Returns the access id from the request's authorization header
@@ -102,6 +106,7 @@ module ApiAuth
     end
 
     def secure_equals?(m1, m2, key)
+      puts "#{sha1_hmac(key, m1)} == #{sha1_hmac(key, m2)} #{sha1_hmac(key, m1) == sha1_hmac(key, m2)}"
       sha1_hmac(key, m1) == sha1_hmac(key, m2)
     end
 
