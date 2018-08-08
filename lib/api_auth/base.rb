@@ -43,10 +43,8 @@ module ApiAuth
       if headers.md5_mismatch?
         false
       elsif !signatures_match?(headers, secret_key, options)
-        puts "signatures don't match"
         false
       elsif !request_within_time_window?(headers, clock_skew)
-        puts "request not within window"
         false
       else
         true
@@ -78,9 +76,8 @@ module ApiAuth
     AUTH_HEADER_PATTERN = /APIAuth(?:-HMAC-(MD5|SHA(?:1|224|256|384|512)?))? ([^:]+):(.+)$/
 
     def request_within_time_window?(headers, clock_skew)
-      puts "#{headers.timestamp}"
-      Time.httpdate(headers.timestamp).utc > (Time.now.utc - clock_skew) &&
-        Time.httpdate(headers.timestamp).utc < (Time.now.utc + clock_skew)
+        headers.timestamp.to_time.utc > (Time.now.utc - clock_skew) &&
+        headers.timestamp.to_time.utc.utc < (Time.now.utc + clock_skew)
     rescue ArgumentError
       false
     end
@@ -97,17 +94,11 @@ module ApiAuth
 
       header_sig = match_data[3]
       calculated_sig = hmac_signature(headers, secret_key, options)
-      
-      puts "secret_key #{secret_key}"
-      puts "header sig #{header_sig}"
-      puts "calculated sig #{calculated_sig}"
-      
       secure_equals?(header_sig, calculated_sig, secret_key)
       
     end
 
     def secure_equals?(m1, m2, key)
-      puts "#{sha1_hmac(key, m1)} == #{sha1_hmac(key, m2)} #{sha1_hmac(key, m1) == sha1_hmac(key, m2)}"
       sha1_hmac(key, m1) == sha1_hmac(key, m2)
     end
 
@@ -118,14 +109,12 @@ module ApiAuth
 
     def hmac_signature(headers, secret_key, options)
       canonical_string = headers.canonical_string(options[:override_http_method])
-      puts "canonical_string #{canonical_string}"
       digest = OpenSSL::Digest.new(options[:digest])
       b64_encode(OpenSSL::HMAC.digest(digest, secret_key, canonical_string))
     end
 
     def auth_header(headers, access_id, secret_key, options)
       hmac_string = "-HMAC-#{options[:digest].upcase}" unless options[:digest] == 'sha1'
-      "APIAuth#{hmac_string} #{access_id}:#{hmac_signature(headers, secret_key, options)}"
     end
 
     def parse_auth_header(auth_header)
