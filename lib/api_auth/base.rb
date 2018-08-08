@@ -86,10 +86,7 @@ module ApiAuth
 
       digest = match_data[1].nil? ? 'SHA1' : match_data[1].upcase
       
-      if !options[:digest].nil? && !options[:digest].casecmp(digest).zero?
-        puts "invalid digest"
-        raise InvalidRequestDigest 
-      end
+      raise InvalidRequestDigest if !options[:digest].nil? && !options[:digest].casecmp(digest).zero?
 
       options = { digest: digest }.merge(options)
 
