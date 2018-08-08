@@ -92,8 +92,13 @@ module ApiAuth
 
       header_sig = match_data[3]
       calculated_sig = hmac_signature(headers, secret_key, options)
-
+      
+      puts "secret_key #{secret_key}"
+      puts "header sig #{header_sig}"
+      puts "calculated sig #{calculated_sig}"
+      
       secure_equals?(header_sig, calculated_sig, secret_key)
+      
     end
 
     def secure_equals?(m1, m2, key)
@@ -107,6 +112,7 @@ module ApiAuth
 
     def hmac_signature(headers, secret_key, options)
       canonical_string = headers.canonical_string(options[:override_http_method])
+      puts "header sig #{canonical_string}"
       digest = OpenSSL::Digest.new(options[:digest])
       b64_encode(OpenSSL::HMAC.digest(digest, secret_key, canonical_string))
     end
