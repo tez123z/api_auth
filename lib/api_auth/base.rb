@@ -40,10 +40,13 @@ module ApiAuth
       clock_skew = options.fetch(:clock_skew, 900)
 
       if headers.md5_mismatch?
+        puts "md5 mismatch"
         false
       elsif !signatures_match?(headers, secret_key, options)
+        puts "!signatures_match"
         false
       elsif !request_within_time_window?(headers, clock_skew)
+        puts "!request_within_time_window"
         false
       else
         true
