@@ -117,7 +117,7 @@ module ApiAuth
 
     def hmac_signature(headers, secret_key, options)
       canonical_string = headers.canonical_string(options[:override_http_method])
-      puts "header sig #{canonical_string}"
+      puts "canonical_string #{canonical_string}"
       digest = OpenSSL::Digest.new(options[:digest])
       b64_encode(OpenSSL::HMAC.digest(digest, secret_key, canonical_string))
     end
