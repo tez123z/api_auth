@@ -72,8 +72,6 @@ module ApiAuth
       b64_encode(Digest::SHA2.new(512).digest(random_bytes))
     end
 
-    private
-
     AUTH_HEADER_PATTERN = /APIAuth(?:-HMAC-(MD5|SHA(?:1|224|256|384|512)?))? ([^:]+):(.+)$/
 
     def request_within_time_window?(headers, clock_skew)
